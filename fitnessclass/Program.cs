@@ -1,7 +1,6 @@
 using fitnessclass.Data;
 using fitnessclass.Repositories;
 using fitnessclass.Services;
-using FitnessClassScheduling.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,10 +1,10 @@
 using fitnessclass.Data;
 using fitnessclass.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace fitnessclass.Repositories
 {
@@ -17,23 +17,29 @@ namespace fitnessclass.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<FitnessClass>> GetAvailableClasses(DateTime? startDate, DateTime? endDate, string instructor, string className)
+        public async Task<FitnessClass> AddClassAsync(FitnessClass fitnessClass)
         {
-            var query = _context.FitnessClasses.AsQueryable();
-
-            if (startDate.HasValue)
-                query = query.Where(c => c.DateTime >= startDate.Value);
-
-            if (endDate.HasValue)
-                query = query.Where(c => c.DateTime <= endDate.Value);
-
-            if (!string.IsNullOrEmpty(instructor))
-                query = query.Where(c => c.Instructor == instructor);
-
-            if (!string.IsNullOrEmpty(className))
-                query = query.Where(c => c.ClassName == className);
-
-            return await query.ToListAsync();
+            _context.FitnessClasses.Add(fitnessClass);
+            await _context.SaveChangesAsync();
+            return fitnessClass;
         }
+
+        public async Task<FitnessClass> GetClassByIdAsync(int id)
+        {
+            return await _context.FitnessClasses.FindAsync(id);
+        }
+        
+        public async Task<IEnumerable<FitnessClass>> GetAvailableClasses(DateTime startDate, DateTime endDate, string instructor, string className)
+        {
+            var startdate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+            var enddate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+
+            return await _context.FitnessClasses
+                .Where(fc => fc.DateTime >= startdate && fc.DateTime <= enddate)
+                .Where(fc =>fc.Instructor == instructor)
+                .Where(fc =>fc.ClassName == className)
+                .ToListAsync();
+        }
+   
     }
 }

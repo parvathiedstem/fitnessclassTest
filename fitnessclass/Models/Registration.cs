@@ -9,7 +9,7 @@ namespace fitnessclass.Models
         public string MemberName { get; set; }
         public string MemberEmail { get; set; }
         public DateTime RegistrationTime { get; set; }
-        public bool IsCanceled { get; set; } // Tracks if registration was canceled
+        public bool IsCanceled { get; set; } 
         public string CancellationReason { get; set; } 
     }
 }

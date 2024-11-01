@@ -1,6 +1,6 @@
+using fitnessclass.Models.Dto;
 using fitnessclass.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace fitnessclass.Controllers
 {
@@ -29,12 +29,19 @@ namespace fitnessclass.Controllers
             }
         }
 
-    }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> CancelRegistration(int id, [FromQuery] string reason)
+        {
+            try
+            {
+                await _service.CancelRegistration(id, reason);
+                return Ok(new { message = "Registration canceled successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
-    public class RegistrationRequest
-    {
-        public int ClassId { get; set; }
-        public string MemberName { get; set; }
-        public string MemberEmail { get; set; }
     }
 }

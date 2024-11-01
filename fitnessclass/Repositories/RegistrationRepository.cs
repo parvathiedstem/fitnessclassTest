@@ -1,11 +1,7 @@
 using fitnessclass.Models;
 using fitnessclass.Data;
-using fitnessclass.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using FitnessClassScheduling.Repositories;
+using fitnessclass.Repositories;
 
 namespace fitnessclass.Repositories
 {
@@ -26,6 +22,14 @@ namespace fitnessclass.Repositories
             var fitnessClass = await _context.FitnessClasses.FindAsync(classId);
             return fitnessClass != null && fitnessClass.AvailableSpots > 0;
         }
+        public async Task<bool> MemberHasOverlappingClass(string memberName, DateTime classDateTime) 
+        
+        {
+            var classtime = DateTime.SpecifyKind(classDateTime, DateTimeKind.Utc);
+            return await _context.Registrations.AnyAsync(r => r.MemberName == memberName && 
+                r.RegistrationTime <= classtime && 
+                classtime < r.RegistrationTime.AddHours(1));
+        }
 
 
         public async Task AddRegistration(Registration registration) 
@@ -33,6 +37,18 @@ namespace fitnessclass.Repositories
             _context.Registrations.Add(registration);
             var fitnessClass = await _context.FitnessClasses.FindAsync(registration.ClassId);
             if (fitnessClass != null) fitnessClass.AvailableSpots--;
+        }
+        public async Task<Registration> GetRegistrationById(int registrationId) => 
+            await _context.Registrations.FindAsync(registrationId);
+
+
+        public async Task CancelRegistration(Registration registration, string reason) 
+        {
+            registration.IsCanceled = true;
+            registration.CancellationReason = reason;
+
+            var fitnessClass = await _context.FitnessClasses.FindAsync(registration.ClassId);
+            if (fitnessClass != null) fitnessClass.AvailableSpots++;
         }
 
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();

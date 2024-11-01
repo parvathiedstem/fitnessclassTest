@@ -6,5 +6,6 @@ namespace fitnessclass.Services
     public interface IRegistrationService
     {
         Task RegisterForClass(int classId, string memberName, string memberEmail);
+        Task CancelRegistration(int registrationId, string cancellationReason);
     }
 }
